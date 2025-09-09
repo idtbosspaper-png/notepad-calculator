@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notepad Calculator 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      /* Tweak this if you want tighter/looser lines (26–30px works well for 20px font) */
+      --row: 28px;                 /* one text row height */
+      --rule: 1px;                 /* thickness of the rule line */
+    }
+
+    body {
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f9f9f9;
+    }
+
+    .container {
+      text-align: center;
+      width: 92%;
+      max-width: 800px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 450px;
+      font-size: 20px;
+      line-height: var(--row);      /* must match the stripe height below */
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+      white-space: pre;
+
+      /* Notepad lines: the white band + a 1px rule every --row */
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          #fff 0 calc(var(--row) - var(--rule)),
+          #eaeaea calc(var(--row) - var(--rule)) var(--row)
+        );
+
+      /* Keep lines fixed to the scrolled content, not the viewport */
+      background-attachment: local;
+
+      /* Align first rule with the first text line (match top padding) */
+      background-position: 0 12px;
+    }
+
+    footer {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Notepad Calculator 2025</h1>
+    <textarea id="input"></textarea>
+    <footer>Developed by Ibrahim Harris</footer>
+  </div>
+
+  <script>
+    const input = document.getElementById("input");
+
+    function updateInline() {
+      const lines = input.value.split("\n");
+      const newLines = lines.map(line => {
+        let expr = line.trim();
+
+        // Remove prior result if present
+        if (expr.includes("=")) {
+          expr = expr.split("=")[0].trim();
+        }
+
+        if (expr) {
+          try {
+            const value = Function('"use strict";return (' + expr.replace(/,/g, "") + ")")();
+            if (typeof value === "number" && !isNaN(value)) {
+              return expr + " = " + value.toLocaleString();
+            }
+          } catch {
+            // Not a valid expression—leave as-is
+            return expr;
+          }
+        }
+        return expr;
+      });
+
+      const pos = input.selectionStart;   // preserve caret
+      input.value = newLines.join("\n");
+      input.selectionEnd = pos;
+    }
+
+    input.addEventListener("input", updateInline);
+  </script>
+</body>
+</html>
